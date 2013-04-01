@@ -6,6 +6,6 @@ import java.math.RoundingMode;
 public class Division implements Operation {
     @Override
     public BigDecimal execute(BigDecimal firstOperand, BigDecimal secondOperand) {
-        return firstOperand.divide(secondOperand, 100, RoundingMode.HALF_UP);
+        return firstOperand.divide(secondOperand, 20, RoundingMode.HALF_UP);
     }
 }

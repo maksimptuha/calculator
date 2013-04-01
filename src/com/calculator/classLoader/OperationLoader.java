@@ -2,20 +2,16 @@ package com.calculator.classLoader;
 
 import com.calculator.operation.Operation;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
-public class OperationLoader extends ClassLoader {
-    private final static String MODULE_PATH = "/modules/";
+public class OperationLoader {
+    private final static String MODULES_PATH = "modules/";
+    private final static String OPERATION_CLASS_NAME_PREFIX = "com.calculator.operation.";
 
-    public OperationLoader() {
-        super(OperationLoader.class.getClassLoader());
-    }
-
-    public Class loadClass(String operation) throws ClassNotFoundException {
+    private String getOperationName(String operation) {
         String operationName = "";
 
         switch (operation.charAt(0)) {
@@ -33,42 +29,27 @@ public class OperationLoader extends ClassLoader {
                 break;
         }
 
-        return findClass(operationName);
+        return operationName;
     }
 
-    @Override
-    public Class findClass(String operationName) {
-        byte classByte[];
-        Class operationClass;
+    public Operation loadOperation(String operation) {
+        String operationName = getOperationName(operation);
+        URL[] modulePath = new URL[1];
 
         try {
-            JarFile jar = new JarFile(MODULE_PATH + operationName + ".jar");
-            JarEntry entry = jar.getJarEntry(operationName + ".class");
-            InputStream is = jar.getInputStream(entry);
-            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-            int nextValue = is.read();
-            while (-1 != nextValue) {
-                byteStream.write(nextValue);
-                nextValue = is.read();
-            }
+            modulePath[0] =  new File(MODULES_PATH + operationName).toURI().toURL();
+            URLClassLoader classLoader = new URLClassLoader(modulePath);
+            Class operationClass = classLoader.loadClass(OPERATION_CLASS_NAME_PREFIX + operationName);
 
-            classByte = byteStream.toByteArray();
-            operationClass = defineClass(null, classByte, 0, classByte.length, null);
-            return operationClass;
-        } catch (Exception e) {
-            throw new RuntimeException("findClass exception.");
-        }
-    }
-
-    public static void main(String[] args) {
-        OperationLoader operationLoader = new OperationLoader();
-        Operation operation;
-
-        try {
-            operation = (Operation) operationLoader.loadClass("+").newInstance();
-            System.out.println(operation.execute(new BigDecimal(5), new BigDecimal(2)));
-        } catch (Exception exception) {
-            System.out.println(exception.getMessage());
+            return (Operation) operationClass.newInstance();
+        } catch (ClassNotFoundException exception) {
+            throw new RuntimeException("Module " + operation + " is not found.");
+        } catch (MalformedURLException exception) {
+            throw new RuntimeException("Module " + operation + " can not be loaded.");
+        } catch (InstantiationException exception) {
+            throw new RuntimeException("Module " + operation + " can not be loaded.");
+        } catch (IllegalAccessException exception) {
+            throw new RuntimeException("Module " + operation + " can not be loaded.");
         }
     }
 }
