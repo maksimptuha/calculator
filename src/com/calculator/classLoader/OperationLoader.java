@@ -3,15 +3,26 @@ package com.calculator.classLoader;
 import com.calculator.operation.Operation;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Properties;
 
 public class OperationLoader {
-    private final static String MODULES_PATH = "modules/";
-    private final static String OPERATION_CLASS_NAME_PREFIX = "com.calculator.operation.";
+    private final static String PROPERTIES_PATH = "properties/loader.properties";
+    private String modulesPath;
+    private String operationClassNamePrefix;
 
-    private String getOperationName(String operation) {
+    public OperationLoader() throws IOException {
+        Properties loaderProperties = new Properties();
+        loaderProperties.load(new FileInputStream(PROPERTIES_PATH));
+        modulesPath = loaderProperties.getProperty("modules_path");
+        operationClassNamePrefix = loaderProperties.getProperty("operation_class_name_prefix");
+    }
+
+    public String getOperationName(String operation) {
         String operationName = "";
 
         switch (operation.charAt(0)) {
@@ -37,9 +48,9 @@ public class OperationLoader {
         URL[] modulePath = new URL[1];
 
         try {
-            modulePath[0] =  new File(MODULES_PATH + operationName).toURI().toURL();
+            modulePath[0] =  new File(modulesPath + operationName).toURI().toURL();
             URLClassLoader classLoader = new URLClassLoader(modulePath);
-            Class operationClass = classLoader.loadClass(OPERATION_CLASS_NAME_PREFIX + operationName);
+            Class operationClass = classLoader.loadClass(operationClassNamePrefix + operationName);
 
             return (Operation) operationClass.newInstance();
         } catch (ClassNotFoundException exception) {
