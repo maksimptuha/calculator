@@ -11,7 +11,7 @@ public class Calculator {
     private Parser parser = new Parser();
     private CalculatorContext context;
 
-    public boolean initialize() {
+    private boolean initialize() {
         try{
             OperationLoader loader = new OperationLoader();
             context = new CalculatorContext(loader);
