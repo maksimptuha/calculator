@@ -11,15 +11,19 @@ import java.net.URLClassLoader;
 import java.util.Properties;
 
 public class OperationLoader {
-    private final static String PROPERTIES_PATH = "properties/loader.properties";
+    private static final String PROPERTIES_PATH = "properties/loader.properties";
     private String modulesPath;
     private String operationClassNamePrefix;
 
-    public OperationLoader() throws IOException {
+    public OperationLoader() {
         Properties loaderProperties = new Properties();
-        loaderProperties.load(new FileInputStream(PROPERTIES_PATH));
-        modulesPath = loaderProperties.getProperty("modules_path");
-        operationClassNamePrefix = loaderProperties.getProperty("operation_class_name_prefix");
+        try {
+            loaderProperties.load(new FileInputStream(PROPERTIES_PATH));
+            modulesPath = loaderProperties.getProperty("modules_path");
+            operationClassNamePrefix = loaderProperties.getProperty("operation_class_name_prefix");
+        } catch (IOException e) {
+            throw new RuntimeException("Loader module can not be initialized.");
+        }
     }
 
     public String getOperationName(String operation) {

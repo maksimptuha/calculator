@@ -9,7 +9,11 @@ import java.util.Map;
 
 public class CalculatorContext {
     private Map<String, Operation> addedOperations = new HashMap<String, Operation>();
-    private OperationLoader operationLoader = new OperationLoader();
+    private OperationLoader operationLoader;
+
+    public CalculatorContext(OperationLoader loader) {
+        operationLoader = loader;
+    }
 
     private String addOperation(String operation) {
         Operation addOperation = operationLoader.loadOperation(operation);

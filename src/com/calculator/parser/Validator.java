@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Validator {
-    private final static List<String> OPERATION_LIST = Arrays.asList("+", "-", "*", "/");
+    private static final List<String> OPERATION_LIST = Arrays.asList("+", "-", "*", "/");
 
     private List<String> operations = new ArrayList<String>();
 
